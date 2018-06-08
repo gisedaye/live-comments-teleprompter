@@ -36,13 +36,13 @@ window.shared.pubsub.on('teleprompterRefresh', () => {
   countdownEl.removeAttribute('value');
   countdownEl.style.display = window.shared.config.autoRefresh ? 'block' : 'none';
   window.shared.lastRefreshTime = new Date();
-  
+
   // Comments
   const commentsEl = document.querySelector('.comments');
   while (commentsEl.firstChild) {
     commentsEl.removeChild(commentsEl.firstChild);
   }
-  
+
   let hadComments = false;
 
   window.shared.comments({deleted: false}).order('priority desc, created desc').each((comment) => {
@@ -51,9 +51,9 @@ window.shared.pubsub.on('teleprompterRefresh', () => {
     commentFrag.content.querySelector('[data-content="name"]').textContent = comment.name;
     commentFrag.content.querySelector('[data-content="time"]').textContent = moment(Math.min(new Date(), comment.created)).fromNow();
     commentFrag.content.querySelector('[data-content="message"]').textContent = comment.message;
-    commentsEl.appendChild(document.importNode(commentFrag.content, true));        
+    commentsEl.appendChild(document.importNode(commentFrag.content, true));
   });
-  
+
   // If we didn't load any comments, immediately load some as soon as they come in
   if (!hadComments) {
     const noCommentsFrag = document.querySelector('template#noComments');
@@ -67,22 +67,22 @@ window.addEventListener('DOMContentLoaded', () => {
     'click',
     window.shared.pubsub.emit.bind(window.shared.pubsub, 'teleprompterRefresh')
   );
-  
+
   // For some buttons, only enable them if we're not in a teleprompter preview (within the moderator panel)
   if (window.location.hash !== '#slave') {
     document.querySelector('[data-action="back"]').addEventListener('click', (e) => {
       window.parent.location.hash = '';
     });
-    
+
     document.querySelector('[data-action="moderate"]').addEventListener('click', (e) => {
       window.shared.moderateWindow = window.open('moderate.html', 'moderate', 'menubar=no,toolbar=no,location=no,personalbar=no,status=no');
     });
-    
+
     document.querySelector('[data-action="fullscreen"]').addEventListener('click', (e) => {
       if (
-        e.currentTarget.ownerDocument.webkitFullscreenElement || 
-        e.currentTarget.ownerDocument.mozFullScreenElement || 
-        e.currentTarget.ownerDocument.msFullscreenElement || 
+        e.currentTarget.ownerDocument.webkitFullscreenElement ||
+        e.currentTarget.ownerDocument.mozFullScreenElement ||
+        e.currentTarget.ownerDocument.msFullscreenElement ||
         e.currentTarget.ownerDocument.webkitFullscreenElement
       ) {
         (
@@ -93,7 +93,7 @@ window.addEventListener('DOMContentLoaded', () => {
         ).call(e.currentTarget.ownerDocument);
         return;
       }
-      
+
       (
         e.currentTarget.ownerDocument.documentElement.requestFullscreen ||
         e.currentTarget.ownerDocument.documentElement.mozRequestFullScreen ||
@@ -101,7 +101,7 @@ window.addEventListener('DOMContentLoaded', () => {
       ).call(e.currentTarget.ownerDocument.documentElement);
     });
   }
-  
+
   const countdownEl = document.querySelector('.countdown');
   function onFrame() {
     requestAnimationFrame(onFrame);
@@ -116,14 +116,14 @@ window.addEventListener('DOMContentLoaded', () => {
       }
       return;
     }
-    
+
     if (countdownEl) {
       countdownEl.max = window.shared.config.refreshInterval;
       countdownEl.value = timeLeft;
     }
   }
   onFrame();
-  
+
   // Force a refresh of everything, for all teleprompter views, to ensure they're in-sync
   window.shared.pubsub.emit('teleprompterRefresh');
   window.shared.pubsub.emit('reactionsUpdate');
